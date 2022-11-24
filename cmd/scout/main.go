@@ -33,7 +33,6 @@ func collectInfo() string {
 	var data map[string]interface{}
 	err := json.Unmarshal([]byte(jsonData), &data)
 	checkError(err)
-	fmt.Printf("json map: %v\n", data)
 	osInfo := data["os"].(map[string]interface{})
 	distro := osInfo["name"].(string)
 
