@@ -1,49 +1,37 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/user"
-	"runtime"
 	"strings"
 	"embed"
-	"github.com/zcalusic/sysinfo"
+	"github.com/elastic/go-sysinfo"
 )
 
 //go:embed imprint.txt
 var fd embed.FS
 
 func collectInfo() string {
-	returnString := "================= SYSINFO =================\n"
+	returnString := "\n================= SYSINFO =================\n"
 
-	// Obtaining info using the runtime and os libraries
+	host, err := sysinfo.Host()
+	checkError(err)
+
+	// Obtaining info using os and go-sysinfo
 	currentuser, _ := user.Current()
 	username := currentuser.Username
-	hostname, _ := os.Hostname()
-	platform := runtime.GOOS
-
-	// Going on a quest to obtain distro info
-	// TODO: Surely there's a better way of doing this
-	// TODO: Maybe make my own version of the whoami crate in Rust
-	var si sysinfo.SysInfo
-	si.GetSysInfo()
-
-	jsonData, _ := json.Marshal(&si)
-
-	var data map[string]interface{}
-	err := json.Unmarshal([]byte(jsonData), &data)
-	checkError(err)
-	osInfo := data["os"].(map[string]interface{})
-	distro := osInfo["name"].(string)
+	hostname := host.Info().Hostname
+	distro := host.Info().OS.Name + " " + host.Info().OS.Version 
+	platform := host.Info().OS.Platform
 
 	// Assembling the string
 	strUsername := "❓ Username: " + username + "\n"
 	strHostname := "🏡 Hostname: " + hostname + "\n"
 	strDistro := "📀 Distro: " + distro + "\n"
-	strPlatform := "🖥️ Release: " + platform + "\n"
+	strPlatform := "🖥️ Platform: " + platform + "\n"
 
 	returnString = returnString + strUsername + strHostname + strDistro + strPlatform
 	return returnString
